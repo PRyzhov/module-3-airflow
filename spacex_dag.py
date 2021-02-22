@@ -19,9 +19,10 @@ default_args = {
 dag = DAG("spacex", default_args=default_args, schedule_interval="0 0 1 1 *")
 
 for rocket in rockets:
+    switch = ' -r %s' % rockets[rocket] if rockets[rocket] else ''
     t1 = BashOperator(
         task_id='get_data_for_%s' % rocket,
-        bash_command='python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }} -r %s -o /var/data' % rockets[rocket],
+        bash_command='python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }}%s -o /var/data' % switch,
         dag=dag,
     )
 
