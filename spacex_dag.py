@@ -2,11 +2,13 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 
+rockets=('all','falcon1','falcon9','falconheavy')
+    
 
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
-    "start_date": datetime(2018, 1, 1),
+    "start_date": datetime(2005, 1, 1),
     "email": ["airflow@airflow.com"],
     "email_on_failure": False,
     "email_on_retry": False,
@@ -16,17 +18,17 @@ default_args = {
 
 dag = DAG("spacex", default_args=default_args, schedule_interval="0 0 1 1 *")
 
-t1 = BashOperator(
-    task_id="get_data", 
-    bash_command="python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }} -o /var/data", 
-    dag=dag
-)
+for rocket in rockets:
+    t1 = BashOperator(
+        task_id='get_data_for_%s' % rocket,
+        bash_command='python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }} -r %s -o /var/data' % rocket,
+        dag=dag,
+    )
 
-t2 = BashOperator(
-    task_id="print_data", 
-    bash_command="cat /var/data/year={{ execution_date.year }}/rocket={{ params.rocket }}/data.csv", 
-    params={"rocket": "all"}, # falcon1/falcon9/falconheavy
-    dag=dag
-)
+    t2 = BashOperator(
+        task_id="print_data", 
+        bash_command="cat /var/data/year={{ execution_date.year }}/rocket=%s/data.csv" % rocket, 
+        dag=dag
+    )
 
-t1 >> t2
+    t1 >> t2
