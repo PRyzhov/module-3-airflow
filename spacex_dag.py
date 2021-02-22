@@ -2,7 +2,8 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 
-rockets=('all','falcon1','falcon9','falconheavy')
+# '' = all
+rockets=('','falcon1','falcon9','falconheavy')
     
 
 default_args = {
