@@ -27,7 +27,7 @@ for rocket in rockets:
     )
 
     t2 = BashOperator(
-        task_id="print_data_for_%s' % rocket, 
+        task_id="print_data_for_%s" % rocket, 
         bash_command="cat /var/data/year={{ execution_date.year }}/rocket=%s/data.csv" % rocket, 
         dag=dag
     )
