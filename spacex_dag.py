@@ -2,8 +2,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 
-# '' = all
-rockets=('','falcon1','falcon9','falconheavy')
+rockets={'all' : '','falcon1' : 'falcon1', 'falcon9' : 'falcon9', 'falconheavy' : 'falconheavy'}
     
 
 default_args = {
@@ -22,13 +21,13 @@ dag = DAG("spacex", default_args=default_args, schedule_interval="0 0 1 1 *")
 for rocket in rockets:
     t1 = BashOperator(
         task_id='get_data_for_%s' % rocket,
-        bash_command='python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }} -r %s -o /var/data' % rocket,
+        bash_command='python3 /root/airflow/dags/spacex/load_launches.py -y {{ execution_date.year }} -r %s -o /var/data' % rockets[rocket],
         dag=dag,
     )
 
     t2 = BashOperator(
         task_id="print_data_for_%s" % rocket, 
-        bash_command="cat /var/data/year={{ execution_date.year }}/rocket=%s/data.csv" % rocket, 
+        bash_command="cat /var/data/year={{ execution_date.year }}/rocket=%s/data.csv"  % rockets[rocket], 
         dag=dag
     )
 
